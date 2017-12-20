@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PatrolCar", "PatrolCar\PatrolCar.vcproj", "{30E14DC7-E4C1-4275-B631-B957CB7BD481}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|SMDK2416 (ARMV4I) = Debug|SMDK2416 (ARMV4I)
+		Release|SMDK2416 (ARMV4I) = Release|SMDK2416 (ARMV4I)
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{30E14DC7-E4C1-4275-B631-B957CB7BD481}.Debug|SMDK2416 (ARMV4I).ActiveCfg = Debug|SMDK2416 (ARMV4I)
+		{30E14DC7-E4C1-4275-B631-B957CB7BD481}.Debug|SMDK2416 (ARMV4I).Build.0 = Debug|SMDK2416 (ARMV4I)
+		{30E14DC7-E4C1-4275-B631-B957CB7BD481}.Debug|SMDK2416 (ARMV4I).Deploy.0 = Debug|SMDK2416 (ARMV4I)
+		{30E14DC7-E4C1-4275-B631-B957CB7BD481}.Release|SMDK2416 (ARMV4I).ActiveCfg = Release|SMDK2416 (ARMV4I)
+		{30E14DC7-E4C1-4275-B631-B957CB7BD481}.Release|SMDK2416 (ARMV4I).Build.0 = Release|SMDK2416 (ARMV4I)
+		{30E14DC7-E4C1-4275-B631-B957CB7BD481}.Release|SMDK2416 (ARMV4I).Deploy.0 = Release|SMDK2416 (ARMV4I)
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
