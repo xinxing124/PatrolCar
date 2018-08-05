@@ -1,30 +1,30 @@
-// PatrolCarDlg.h : Í·ÎÄ¼ş
+ï»¿// PatrolCarDlg.h : å¤´æ–‡ä»¶
 //
 
 #pragma once
 #include "afxwin.h"
 #include "CESeries.h"
 
-// CPatrolCarDlg ¶Ô»°¿ò
+// CPatrolCarDlg å¯¹è¯æ¡†
 class CPatrolCarDlg : public CDialog
 {
-// ¹¹Ôì
+// æ„é€ 
 public:
-	CPatrolCarDlg(CWnd* pParent = NULL);	// ±ê×¼¹¹Ôìº¯Êı
+	CPatrolCarDlg(CWnd* pParent = NULL);	// æ ‡å‡†æ„é€ å‡½æ•°
 	
-// ¶Ô»°¿òÊı¾İ
+// å¯¹è¯æ¡†æ•°æ®
 	enum { IDD = IDD_PATROLCAR_DIALOG };
-	CWnd* pWnd; //±íÊ¾¿Ø¼ş´°¿ÚµÄ±äÁ¿ 
-    CDC* pControlDC; //±íÊ¾¿Ø¼ş´°¿ÚµÄÉè±¸ÃèÊö±í.DC 
+	CWnd* pWnd; //è¡¨ç¤ºæ§ä»¶çª—å£çš„å˜é‡ 
+    CDC* pControlDC; //è¡¨ç¤ºæ§ä»¶çª—å£çš„è®¾å¤‡æè¿°è¡¨.DC 
 
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV Ö§³Ö
+	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV æ”¯æŒ
 
-// ÊµÏÖ
+// å®ç°
 protected:
 	HICON m_hIcon;
 	HICON m_myhIcon;
-	// Éú³ÉµÄÏûÏ¢Ó³Éäº¯Êı
+	// ç”Ÿæˆçš„æ¶ˆæ¯æ˜ å°„å‡½æ•°
 	virtual BOOL OnInitDialog();
 #if defined(_DEVICE_RESOLUTION_AWARE) && !defined(WIN32_PLATFORM_WFSP)
 	afx_msg void OnSize(UINT /*nType*/, int /*cx*/, int /*cy*/);
@@ -38,7 +38,7 @@ public:
 	CCESeries* m_pThreeSerial;
 	int		m_iThreeSerialMode;
 	double m_Xishu[2];
-	//¶¨Òå´®¿Ú½ÓÊÕÊı¾İº¯ÊıÀàĞÍ
+	//å®šä¹‰ä¸²å£æ¥æ”¶æ•°æ®å‡½æ•°ç±»å‹
 	static void CALLBACK OnOneSerialRead(void * pOwner,BYTE* buf,DWORD bufLen);
 	static void CALLBACK OnTwoSerialRead(void * pOwner,BYTE* buf,DWORD bufLen);
 	static void CALLBACK OnThreeSerialRead(void * pOwner,BYTE* buf,DWORD bufLen);

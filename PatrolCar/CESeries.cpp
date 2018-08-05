@@ -1,59 +1,59 @@
-/*-----------------------------------------
+ï»¿/*-----------------------------------------
 * Copyright (c) 2008 Eric Wong
-* ±¾°æ½ô¹©¶ÁÕß²Î¿¼£¬²»µÃÓÃÓÚÈÎºÎÉÌÒµĞĞÎª
+* æœ¬ç‰ˆç´§ä¾›è¯»è€…å‚è€ƒï¼Œä¸å¾—ç”¨äºä»»ä½•å•†ä¸šè¡Œä¸º
 *
-* ÎÄ¼şÃû³Æ£º CESeries.cpp
-* ÎÄ¼ş±êÊ¶£º 
-* ÕªÒª£ºÓÃÓÚ·â×°WINCE ´®¿ÚÍ¨Ñ¶
+* æ–‡ä»¶åç§°ï¼š CESeries.cpp
+* æ–‡ä»¶æ ‡è¯†ï¼š 
+* æ‘˜è¦ï¼šç”¨äºå°è£…WINCE ä¸²å£é€šè®¯
 *
-* µ±Ç°°æ±¾£º 1.0
-* ×÷Õß£º Íô±ø Eric Wong
-* Íê³ÉÈÕÆÚ£º 2008Äê1ÔÂ17ÈÕ
+* å½“å‰ç‰ˆæœ¬ï¼š 1.0
+* ä½œè€…ï¼š æ±ªå…µ Eric Wong
+* å®Œæˆæ—¥æœŸï¼š 2008å¹´1æœˆ17æ—¥
 *
-* È¡´ú°æ±¾£º
-* Ô­×÷Õß£º 
-* Íê³ÉÈÕÆÚ£º 
+* å–ä»£ç‰ˆæœ¬ï¼š
+* åŸä½œè€…ï¼š 
+* å®Œæˆæ—¥æœŸï¼š 
 ----------------------------------------*/
 #include "StdAfx.h"
 #include "CESeries.h"
 
-//¹¹Ôìº¯Êı
+//æ„é€ å‡½æ•°
 CCESeries::CCESeries()
 {
-	//³õÊ¼»¯ÄÚ²¿±äÁ¿
+	//åˆå§‹åŒ–å†…éƒ¨å˜é‡
 	m_hComm = INVALID_HANDLE_VALUE;
 	m_OnSeriesRead = NULL;
 	m_bOpened = 0;
 }
 
-//Îö¹¹º¯Êı
+//ææ„å‡½æ•°
 CCESeries::~CCESeries()
 {
 	if (m_bOpened)
 	{
-		//¹Ø±Õ´®¿Ú
+		//å…³é—­ä¸²å£
 		ClosePort();
 	}
 }
 
-//´®¿Ú¶ÁÏß³Ìº¯Êı
+//ä¸²å£è¯»çº¿ç¨‹å‡½æ•°
 DWORD CCESeries::ReadThreadFunc(LPVOID lparam)
 {
 	CCESeries *ceSeries = (CCESeries*)lparam;
 	
 	DWORD	evtMask;
-	BYTE * readBuf = NULL;//¶ÁÈ¡µÄ×Ö½Ú
-	DWORD actualReadLen=0;//Êµ¼Ê¶ÁÈ¡µÄ×Ö½ÚÊı
+	BYTE * readBuf = NULL;//è¯»å–çš„å­—èŠ‚
+	DWORD actualReadLen=0;//å®é™…è¯»å–çš„å­—èŠ‚æ•°
 	DWORD willReadLen;
 	
 	DWORD dwReadErrors;
 	COMSTAT	cmState;
 	
-	// Çå¿Õ»º³å£¬²¢¼ì²é´®¿ÚÊÇ·ñ´ò¿ª¡£
+	// æ¸…ç©ºç¼“å†²ï¼Œå¹¶æ£€æŸ¥ä¸²å£æ˜¯å¦æ‰“å¼€ã€‚
 	ASSERT(ceSeries->m_hComm !=INVALID_HANDLE_VALUE); 
 	
 	
-	//Çå¿Õ´®¿Ú
+	//æ¸…ç©ºä¸²å£
 	PurgeComm(ceSeries->m_hComm, PURGE_RXCLEAR | PURGE_TXCLEAR );
 	
 	SetCommMask (ceSeries->m_hComm, EV_RXCHAR | EV_CTS | EV_DSR );
@@ -62,7 +62,7 @@ DWORD CCESeries::ReadThreadFunc(LPVOID lparam)
 		if (WaitCommEvent(ceSeries->m_hComm,&evtMask,0))
 		{			
 			SetCommMask (ceSeries->m_hComm, EV_RXCHAR | EV_CTS | EV_DSR );
-			//±íÊ¾´®¿ÚÊÕµ½×Ö·û		
+			//è¡¨ç¤ºä¸²å£æ”¶åˆ°å­—ç¬¦		
 			if (evtMask & EV_RXCHAR) 
 			{
 				ClearCommError(ceSeries->m_hComm,&dwReadErrors,&cmState);
@@ -72,28 +72,28 @@ DWORD CCESeries::ReadThreadFunc(LPVOID lparam)
 					continue;
 				}
 				
-				//·ÖÅäÄÚ´æ
+				//åˆ†é…å†…å­˜
 				readBuf = new BYTE[willReadLen];
 				ZeroMemory(readBuf,willReadLen);
-				//¶ÁÈ¡´®¿ÚÊı¾İ
+				//è¯»å–ä¸²å£æ•°æ®
 				ReadFile(ceSeries->m_hComm, readBuf, willReadLen, &actualReadLen,0);
 				
-				//Èç¹û¶ÁÈ¡µÄÊı¾İ´óÓÚ0£¬
+				//å¦‚æœè¯»å–çš„æ•°æ®å¤§äº0ï¼Œ
 				if (actualReadLen>0)
 				{
-					//´¥·¢¶ÁÈ¡»Øµ÷º¯Êı
+					//è§¦å‘è¯»å–å›è°ƒå‡½æ•°
 					if (ceSeries->m_OnSeriesRead)
 					{
 						ceSeries->m_OnSeriesRead(ceSeries->m_pOwner,readBuf,actualReadLen);
 					}
 				}
 
-				//ÊÍ·ÅÄÚ´æ
+				//é‡Šæ”¾å†…å­˜
 				delete[] readBuf;
 				readBuf = NULL;
 			}
 		}
-		//Èç¹ûÊÕµ½¶ÁÏß³ÌÍË³öĞÅºÅ£¬ÔòÍË³öÏß³Ì
+		//å¦‚æœæ”¶åˆ°è¯»çº¿ç¨‹é€€å‡ºä¿¡å·ï¼Œåˆ™é€€å‡ºçº¿ç¨‹
 		if (WaitForSingleObject(ceSeries->m_hReadCloseEvent,500) == WAIT_OBJECT_0)
 		{
 			break;
@@ -102,15 +102,15 @@ DWORD CCESeries::ReadThreadFunc(LPVOID lparam)
 	return 0;
 }
 
-//¹Ø±Õ¶ÁÏß³Ì
+//å…³é—­è¯»çº¿ç¨‹
 void CCESeries::CloseReadThread()
 {
 	SetEvent(m_hReadCloseEvent);
-	//ÉèÖÃËùÓĞÊÂ¼şÎŞĞ§ÎŞĞ§
+	//è®¾ç½®æ‰€æœ‰äº‹ä»¶æ— æ•ˆæ— æ•ˆ
 	SetCommMask(m_hComm, 0);
-	//Çå¿ÕËùÓĞ½«Òª¶ÁµÄÊı¾İ
+	//æ¸…ç©ºæ‰€æœ‰å°†è¦è¯»çš„æ•°æ®
     PurgeComm( m_hComm,  PURGE_RXCLEAR );
-    //µÈ´ı4Ãë£¬Èç¹û¶ÁÏß³ÌÃ»ÓĞÍË³ö£¬ÔòÇ¿ÖÆÍË³ö
+    //ç­‰å¾…4ç§’ï¼Œå¦‚æœè¯»çº¿ç¨‹æ²¡æœ‰é€€å‡ºï¼Œåˆ™å¼ºåˆ¶é€€å‡º
     if (WaitForSingleObject(m_hReadThread,4000) == WAIT_TIMEOUT)
 	{
 		TerminateThread(m_hReadThread,0);
@@ -119,22 +119,22 @@ void CCESeries::CloseReadThread()
 }
 
 /*
-*º¯Êı½éÉÜ£º´ò¿ª´®¿Ú
-*Èë¿Ú²ÎÊı£ºpPortOwner	:Ê¹ÓÃ´Ë´®¿ÚÀàµÄ´°Ìå¾ä±ú
-		   portNo		:´®¿ÚºÅ
-		   baud			:²¨ÌØÂÊ
-		   parity		:ÆæÅ¼Ğ£Ñé
-		   databits		:Êı¾İÎ»
-		   stopbits		:Í£Ö¹Î»
-*³ö¿Ú²ÎÊı£º(ÎŞ)
-*·µ»ØÖµ£ºTRUE:³É¹¦´ò¿ª´®¿Ú;FALSE:´ò¿ª´®¿ÚÊ§°Ü
+*å‡½æ•°ä»‹ç»ï¼šæ‰“å¼€ä¸²å£
+*å…¥å£å‚æ•°ï¼špPortOwner	:ä½¿ç”¨æ­¤ä¸²å£ç±»çš„çª—ä½“å¥æŸ„
+		   portNo		:ä¸²å£å·
+		   baud			:æ³¢ç‰¹ç‡
+		   parity		:å¥‡å¶æ ¡éªŒ
+		   databits		:æ•°æ®ä½
+		   stopbits		:åœæ­¢ä½
+*å‡ºå£å‚æ•°ï¼š(æ— )
+*è¿”å›å€¼ï¼šTRUE:æˆåŠŸæ‰“å¼€ä¸²å£;FALSE:æ‰“å¼€ä¸²å£å¤±è´¥
 */
 BOOL CCESeries::OpenPort(void * pOwner,
-						 UINT portNo	,			/*´®¿ÚºÅ*/
-						 UINT baud		,			/*²¨ÌØÂÊ*/
-						 UINT parity	,			/*ÆæÅ¼Ğ£Ñé*/
-						 UINT databits	,			/*Êı¾İÎ»*/
-						 UINT stopbits			   /*Í£Ö¹Î»*/
+						 UINT portNo	,			/*ä¸²å£å·*/
+						 UINT baud		,			/*æ³¢ç‰¹ç‡*/
+						 UINT parity	,			/*å¥‡å¶æ ¡éªŒ*/
+						 UINT databits	,			/*æ•°æ®ä½*/
+						 UINT stopbits			   /*åœæ­¢ä½*/
 						 )
 {
 	DCB commParam;
@@ -143,37 +143,37 @@ BOOL CCESeries::OpenPort(void * pOwner,
 	ASSERT(pOwner!=NULL);
 	m_pOwner = pOwner;
 	
-	// ÒÑ¾­´ò¿ªµÄ»°£¬Ö±½Ó·µ»Ø
+	// å·²ç»æ‰“å¼€çš„è¯ï¼Œç›´æ¥è¿”å›
 	if (m_hComm != INVALID_HANDLE_VALUE)
 	{
 		return TRUE;
 	}
 	
-	//ÉèÖÃ´®¿ÚÃû
+	//è®¾ç½®ä¸²å£å
 	wsprintf(szPort, L"COM%d:", portNo);
-	//´ò¿ª´®¿Ú
+	//æ‰“å¼€ä¸²å£
 	m_hComm = CreateFile(
 		szPort,
-		GENERIC_READ | GENERIC_WRITE,	//ÔÊĞí¶ÁºÍĞ´
-		0,								//¶ÀÕ¼·½Ê½£¨¹²ÏíÄ£Ê½£©
+		GENERIC_READ | GENERIC_WRITE,	//å…è®¸è¯»å’Œå†™
+		0,								//ç‹¬å æ–¹å¼ï¼ˆå…±äº«æ¨¡å¼ï¼‰
 		NULL,
-		OPEN_EXISTING,					//´ò¿ª¶ø²»ÊÇ´´½¨£¨´´½¨·½Ê½£©
+		OPEN_EXISTING,					//æ‰“å¼€è€Œä¸æ˜¯åˆ›å»ºï¼ˆåˆ›å»ºæ–¹å¼ï¼‰
 		0,
 		NULL 
 		);
 	
 	if (m_hComm == INVALID_HANDLE_VALUE)
 	{
-		// ÎŞĞ§¾ä±ú,·µ»Ø¡£		
-		TRACE(_T("CreateFile ·µ»ØÎŞĞ§¾ä±ú\n"));
+		// æ— æ•ˆå¥æŸ„,è¿”å›ã€‚		
+		TRACE(_T("CreateFile è¿”å›æ— æ•ˆå¥æŸ„\n"));
 		return FALSE;
 		
 	}
 	
-	// µÃµ½´ò¿ª´®¿ÚµÄµ±Ç°ÊôĞÔ²ÎÊı£¬ĞŞ¸ÄºóÔÙÖØĞÂÉèÖÃ´®¿Ú¡£
+	// å¾—åˆ°æ‰“å¼€ä¸²å£çš„å½“å‰å±æ€§å‚æ•°ï¼Œä¿®æ”¹åå†é‡æ–°è®¾ç½®ä¸²å£ã€‚
 	if (!GetCommState(m_hComm,&commParam))
 	{		
-		//¹Ø±Õ´®¿Ú
+		//å…³é—­ä¸²å£
 		CloseHandle (m_hComm);
 		m_hComm = INVALID_HANDLE_VALUE;
 		return FALSE;
@@ -181,13 +181,13 @@ BOOL CCESeries::OpenPort(void * pOwner,
 	
 	Sleep(200);
 
-	//ÉèÖÃ´®¿Ú²ÎÊı
-	commParam.BaudRate = baud;					// ÉèÖÃ²¨ÌØÂÊ 
-	commParam.fBinary = TRUE;					// ÉèÖÃ¶ş½øÖÆÄ£Ê½£¬´Ë´¦±ØĞëÉèÖÃTRUE
-	commParam.fParity = TRUE;					// Ö§³ÖÆæÅ¼Ğ£Ñé 
-	commParam.ByteSize = databits;				// Êı¾İÎ»,·¶Î§:4-8 
-	commParam.Parity = parity;				// Ğ£ÑéÄ£Ê½
-	commParam.StopBits =stopbits;				// Í£Ö¹Î» 
+	//è®¾ç½®ä¸²å£å‚æ•°
+	commParam.BaudRate = baud;					// è®¾ç½®æ³¢ç‰¹ç‡ 
+	commParam.fBinary = TRUE;					// è®¾ç½®äºŒè¿›åˆ¶æ¨¡å¼ï¼Œæ­¤å¤„å¿…é¡»è®¾ç½®TRUE
+	commParam.fParity = TRUE;					// æ”¯æŒå¥‡å¶æ ¡éªŒ 
+	commParam.ByteSize = databits;				// æ•°æ®ä½,èŒƒå›´:4-8 
+	commParam.Parity = parity;				// æ ¡éªŒæ¨¡å¼
+	commParam.StopBits =stopbits;				// åœæ­¢ä½ 
 	
 	commParam.fOutxCtsFlow = FALSE;				// No CTS output flow control 
 	commParam.fOutxDsrFlow = FALSE;				// No DSR output flow control 
@@ -201,20 +201,20 @@ BOOL CCESeries::OpenPort(void * pOwner,
 	commParam.fNull = FALSE;					// Disable null stripping 
 	commParam.fRtsControl = RTS_CONTROL_ENABLE; 
 	// RTS flow control 
-	commParam.fAbortOnError = FALSE;			// µ±´®¿Ú·¢Éú´íÎó£¬²¢²»ÖÕÖ¹´®¿Ú¶ÁĞ´
+	commParam.fAbortOnError = FALSE;			// å½“ä¸²å£å‘ç”Ÿé”™è¯¯ï¼Œå¹¶ä¸ç»ˆæ­¢ä¸²å£è¯»å†™
 	
-	//ÉèÖÃ´®¿Ú²ÎÊı
+	//è®¾ç½®ä¸²å£å‚æ•°
 	if (!SetCommState(m_hComm, &commParam))
 	{
 		TRACE(_T("SetCommState error"));	
-		//¹Ø±Õ´®¿Ú
+		//å…³é—­ä¸²å£
 		CloseHandle (m_hComm);
 		m_hComm = INVALID_HANDLE_VALUE;	
 		//AfxMessageBox(L"SetCommState error");
 		return FALSE;
 	}
 	
-    //ÉèÖÃ´®¿Ú¶ÁĞ´Ê±¼ä
+    //è®¾ç½®ä¸²å£è¯»å†™æ—¶é—´
 	COMMTIMEOUTS CommTimeOuts;
 	GetCommTimeouts (m_hComm, &CommTimeOuts);
 	CommTimeOuts.ReadIntervalTimeout = MAXDWORD;  
@@ -222,56 +222,56 @@ BOOL CCESeries::OpenPort(void * pOwner,
 	CommTimeOuts.ReadTotalTimeoutConstant = 0;    
 	CommTimeOuts.WriteTotalTimeoutMultiplier = 10;  
 	CommTimeOuts.WriteTotalTimeoutConstant = 1000;
-	//¶Á×Ü³¬Ê± £½ ReadTotalTimeoutMultiplier ¡Á 10 + ReadTotalTimeoutConstant
+	//è¯»æ€»è¶…æ—¶ ï¼ ReadTotalTimeoutMultiplier Ã— 10 + ReadTotalTimeoutConstant
 	if(!SetCommTimeouts( m_hComm, &CommTimeOuts ))
 	{
-		TRACE( _T("SetCommTimeouts ·µ»Ø´íÎó") );
-		//¹Ø±Õ´®¿Ú
+		TRACE( _T("SetCommTimeouts è¿”å›é”™è¯¯") );
+		//å…³é—­ä¸²å£
 		CloseHandle (m_hComm);
 
 		m_hComm = INVALID_HANDLE_VALUE;
 		return FALSE;
 	}
 	
-	//Ö¸¶¨¶Ë¿Ú¼à²âµÄÊÂ¼ş¼¯
+	//æŒ‡å®šç«¯å£ç›‘æµ‹çš„äº‹ä»¶é›†
 	SetCommMask (m_hComm, EV_RXCHAR);
-	//·ÖÅä´®¿ÚÉè±¸»º³åÇø
+	//åˆ†é…ä¸²å£è®¾å¤‡ç¼“å†²åŒº
 	SetupComm(m_hComm,512,512);
-	//³õÊ¼»¯»º³åÇøÖĞµÄĞÅÏ¢
+	//åˆå§‹åŒ–ç¼“å†²åŒºä¸­çš„ä¿¡æ¯
 	PurgeComm(m_hComm,PURGE_TXCLEAR|PURGE_RXCLEAR);
 	
 	CString strEvent;
 	strEvent.Format(L"Com_ReadCloseEvent%d",portNo);
 	m_hReadCloseEvent = CreateEvent(NULL,TRUE,FALSE,strEvent);
 
-	//´´½¨´®¿Ú¶ÁÊı¾İ¼àÌıÏß³Ì
+	//åˆ›å»ºä¸²å£è¯»æ•°æ®ç›‘å¬çº¿ç¨‹
 	m_hReadThread = CreateThread(NULL,0,ReadThreadFunc,this,0,&m_dwReadThreadID);
 	
-	TRACE(_T("´®¿Ú´ò¿ª³É¹¦"));
+	TRACE(_T("ä¸²å£æ‰“å¼€æˆåŠŸ"));
 	m_bOpened = TRUE;
 	return TRUE;
 }
 
 /*
-*º¯Êı½éÉÜ£º¹Ø±Õ´®¿Ú
-*Èë¿Ú²ÎÊı£º(ÎŞ)
-*³ö¿Ú²ÎÊı£º(ÎŞ)
-*·µ»ØÖµ£º  (ÎŞ)
+*å‡½æ•°ä»‹ç»ï¼šå…³é—­ä¸²å£
+*å…¥å£å‚æ•°ï¼š(æ— )
+*å‡ºå£å‚æ•°ï¼š(æ— )
+*è¿”å›å€¼ï¼š  (æ— )
 */
 void CCESeries::ClosePort()
 {	
-	//±íÊ¾´®¿Ú»¹Ã»ÓĞ´ò¿ª
+	//è¡¨ç¤ºä¸²å£è¿˜æ²¡æœ‰æ‰“å¼€
 	if (m_hComm == INVALID_HANDLE_VALUE)
 	{
 		return ;
 	}
 	
-	//¹Ø±Õ¶ÁÏß³Ì
+	//å…³é—­è¯»çº¿ç¨‹
 	CloseReadThread();
 	
-	//¹Ø±Õ´®¿Ú
+	//å…³é—­ä¸²å£
 	CloseHandle (m_hComm);
-	//¹Ø±ÕÊÂ¼ş
+	//å…³é—­äº‹ä»¶
 	CloseHandle(m_hReadCloseEvent);
 
 	m_hComm = INVALID_HANDLE_VALUE;
@@ -279,29 +279,29 @@ void CCESeries::ClosePort()
 }
 
 /*
-*º¯Êı½éÉÜ£ºÍù´®¿ÚĞ´ÈëÊı¾İ
-*Èë¿Ú²ÎÊı£ºbuf £º´ıĞ´ÈëÊı¾İ»º³åÇø
-	       bufLen : ´ıĞ´Èë»º³åÇø³¤¶È
-*³ö¿Ú²ÎÊı£º(ÎŞ)
-*·µ»ØÖµ£ºTRUE:ÉèÖÃ³É¹¦;FALSE:ÉèÖÃÊ§°Ü
+*å‡½æ•°ä»‹ç»ï¼šå¾€ä¸²å£å†™å…¥æ•°æ®
+*å…¥å£å‚æ•°ï¼šbuf ï¼šå¾…å†™å…¥æ•°æ®ç¼“å†²åŒº
+	       bufLen : å¾…å†™å…¥ç¼“å†²åŒºé•¿åº¦
+*å‡ºå£å‚æ•°ï¼š(æ— )
+*è¿”å›å€¼ï¼šTRUE:è®¾ç½®æˆåŠŸ;FALSE:è®¾ç½®å¤±è´¥
 */
 BOOL CCESeries::WriteSyncPort(const BYTE*buf , DWORD bufLen)
 {
 	DWORD dwNumBytesWritten;
-	DWORD dwHaveNumWritten =0 ; //ÒÑ¾­Ğ´Èë¶àÉÙ
+	DWORD dwHaveNumWritten =0 ; //å·²ç»å†™å…¥å¤šå°‘
 	
-	int iInc = 0; //Èç¹û3´ÎĞ´Èë²»³É¹¦£¬·µ»ØFALSE
+	int iInc = 0; //å¦‚æœ3æ¬¡å†™å…¥ä¸æˆåŠŸï¼Œè¿”å›FALSE
 	ASSERT(m_hComm != INVALID_HANDLE_VALUE);
 	do
 	{
-		if (WriteFile (m_hComm,					//´®¿Ú¾ä±ú 
-			buf+dwHaveNumWritten,				//±»Ğ´Êı¾İ»º³åÇø 
-			bufLen - dwHaveNumWritten,          //±»Ğ´Êı¾İ»º³åÇø´óĞ¡
-			&dwNumBytesWritten,					//º¯ÊıÖ´ĞĞ³É¹¦ºó£¬·µ»ØÊµ¼ÊÏò´®¿ÚĞ´µÄ¸öÊı	
-			NULL))								//´Ë´¦±ØĞëÉèÖÃNULL
+		if (WriteFile (m_hComm,					//ä¸²å£å¥æŸ„ 
+			buf+dwHaveNumWritten,				//è¢«å†™æ•°æ®ç¼“å†²åŒº 
+			bufLen - dwHaveNumWritten,          //è¢«å†™æ•°æ®ç¼“å†²åŒºå¤§å°
+			&dwNumBytesWritten,					//å‡½æ•°æ‰§è¡ŒæˆåŠŸåï¼Œè¿”å›å®é™…å‘ä¸²å£å†™çš„ä¸ªæ•°	
+			NULL))								//æ­¤å¤„å¿…é¡»è®¾ç½®NULL
 		{
 			dwHaveNumWritten = dwHaveNumWritten + dwNumBytesWritten;
-			//Ğ´ÈëÍê³É
+			//å†™å…¥å®Œæˆ
 			if (dwHaveNumWritten == bufLen)
 			{
 				break;
@@ -323,39 +323,39 @@ BOOL CCESeries::WriteSyncPort(const BYTE*buf , DWORD bufLen)
 }
 
 /*
-*º¯Êı½éÉÜ£ºÏò´®¿ÚĞ´ÈëÊı¾İ²¢¶ÁÈ¡
-*Èë¿Ú²ÎÊı£ºbuf £º´ıĞ´ÈëÊı¾İ»º³åÇø
-	       bufLen : ´ıĞ´Èë»º³åÇø³¤¶È
-		   overtime : ¶Á³¬Ê±ÉèÖÃ
-		   asynLen : ´ı¶ÁÈ¡µÄ»º³åÇø³¤¶È
-		   asynbuf : ¶ÁÈ¡µ½µÄÊı¾İ
-*³ö¿Ú²ÎÊı£º(ÎŞ)
-*·µ»ØÖµ£ºTRUE:ÉèÖÃ³É¹¦;FALSE:ÉèÖÃÊ§°Ü
+*å‡½æ•°ä»‹ç»ï¼šå‘ä¸²å£å†™å…¥æ•°æ®å¹¶è¯»å–
+*å…¥å£å‚æ•°ï¼šbuf ï¼šå¾…å†™å…¥æ•°æ®ç¼“å†²åŒº
+	       bufLen : å¾…å†™å…¥ç¼“å†²åŒºé•¿åº¦
+		   overtime : è¯»è¶…æ—¶è®¾ç½®
+		   asynLen : å¾…è¯»å–çš„ç¼“å†²åŒºé•¿åº¦
+		   asynbuf : è¯»å–åˆ°çš„æ•°æ®
+*å‡ºå£å‚æ•°ï¼š(æ— )
+*è¿”å›å€¼ï¼šTRUE:è®¾ç½®æˆåŠŸ;FALSE:è®¾ç½®å¤±è´¥
 */
 BOOL CCESeries::ReadAsynPort(const BYTE*buf , DWORD bufLen,DWORD overtime,DWORD asynLen,BYTE* asynbuf)
 {
 	DWORD dwNumBytesWritten;
-	DWORD dwHaveNumWritten =0 ; //ÒÑ¾­Ğ´Èë¶àÉÙ
+	DWORD dwHaveNumWritten =0 ; //å·²ç»å†™å…¥å¤šå°‘
 	DWORD	evtMask;
-	BYTE * readBuf = NULL;//¶ÁÈ¡µÄ×Ö½Ú
-	DWORD actualReadLen=0;//Êµ¼Ê¶ÁÈ¡µÄ×Ö½ÚÊı
+	BYTE * readBuf = NULL;//è¯»å–çš„å­—èŠ‚
+	DWORD actualReadLen=0;//å®é™…è¯»å–çš„å­—èŠ‚æ•°
 	DWORD willReadLen;
 	DWORD dwRevLen=0;
 	DWORD dwReadErrors;
 	COMSTAT	cmState;
 
-	int iInc = 0; //Èç¹û3´ÎĞ´Èë²»³É¹¦£¬·µ»ØFALSE
+	int iInc = 0; //å¦‚æœ3æ¬¡å†™å…¥ä¸æˆåŠŸï¼Œè¿”å›FALSE
 	ASSERT(m_hComm != INVALID_HANDLE_VALUE);
 	do
 	{
-		if (WriteFile (m_hComm,					//´®¿Ú¾ä±ú 
-			buf+dwHaveNumWritten,				//±»Ğ´Êı¾İ»º³åÇø 
-			bufLen - dwHaveNumWritten,          //±»Ğ´Êı¾İ»º³åÇø´óĞ¡
-			&dwNumBytesWritten,					//º¯ÊıÖ´ĞĞ³É¹¦ºó£¬·µ»ØÊµ¼ÊÏò´®¿ÚĞ´µÄ¸öÊı	
-			NULL))								//´Ë´¦±ØĞëÉèÖÃNULL
+		if (WriteFile (m_hComm,					//ä¸²å£å¥æŸ„ 
+			buf+dwHaveNumWritten,				//è¢«å†™æ•°æ®ç¼“å†²åŒº 
+			bufLen - dwHaveNumWritten,          //è¢«å†™æ•°æ®ç¼“å†²åŒºå¤§å°
+			&dwNumBytesWritten,					//å‡½æ•°æ‰§è¡ŒæˆåŠŸåï¼Œè¿”å›å®é™…å‘ä¸²å£å†™çš„ä¸ªæ•°	
+			NULL))								//æ­¤å¤„å¿…é¡»è®¾ç½®NULL
 		{
 			dwHaveNumWritten = dwHaveNumWritten + dwNumBytesWritten;
-			//Ğ´ÈëÍê³É
+			//å†™å…¥å®Œæˆ
 			if (dwHaveNumWritten == bufLen)
 			{
 				break;
@@ -373,7 +373,7 @@ BOOL CCESeries::ReadAsynPort(const BYTE*buf , DWORD bufLen,DWORD overtime,DWORD 
 		}
 	}while (TRUE);
 	
-	//Çå¿Õ´®¿Ú
+	//æ¸…ç©ºä¸²å£
 	PurgeComm(m_hComm, PURGE_RXCLEAR | PURGE_TXCLEAR );
 	
 	SetCommMask (m_hComm, EV_RXCHAR | EV_CTS | EV_DSR );
@@ -386,7 +386,7 @@ BOOL CCESeries::ReadAsynPort(const BYTE*buf , DWORD bufLen,DWORD overtime,DWORD 
 		if (WaitCommEvent(m_hComm,&evtMask,0))
 		{			
 			SetCommMask (m_hComm, EV_RXCHAR | EV_CTS | EV_DSR );
-			//±íÊ¾´®¿ÚÊÕµ½×Ö·û		
+			//è¡¨ç¤ºä¸²å£æ”¶åˆ°å­—ç¬¦		
 			if (evtMask & EV_RXCHAR) 
 			{
 				ClearCommError(m_hComm,&dwReadErrors,&cmState);
@@ -396,13 +396,13 @@ BOOL CCESeries::ReadAsynPort(const BYTE*buf , DWORD bufLen,DWORD overtime,DWORD 
 					continue;
 				}
 				
-				//·ÖÅäÄÚ´æ
+				//åˆ†é…å†…å­˜
 				readBuf = new BYTE[willReadLen];
 				ZeroMemory(readBuf,willReadLen);
-				//¶ÁÈ¡´®¿ÚÊı¾İ
+				//è¯»å–ä¸²å£æ•°æ®
 				ReadFile(m_hComm, readBuf, willReadLen, &actualReadLen,0);
 				
-				//Èç¹û¶ÁÈ¡µÄÊı¾İ´óÓÚ0£¬
+				//å¦‚æœè¯»å–çš„æ•°æ®å¤§äº0ï¼Œ
 				if (actualReadLen>0)
 				{
 					if(asynLen==0)
@@ -419,12 +419,12 @@ BOOL CCESeries::ReadAsynPort(const BYTE*buf , DWORD bufLen,DWORD overtime,DWORD 
 					}
 				}
 
-				//ÊÍ·ÅÄÚ´æ
+				//é‡Šæ”¾å†…å­˜
 				delete[] readBuf;
 				readBuf = NULL;
 			}
 		}
-		//Èç¹ûÊÕµ½¶ÁÏß³ÌÍË³öĞÅºÅ£¬ÔòÍË³öÏß³Ì
+		//å¦‚æœæ”¶åˆ°è¯»çº¿ç¨‹é€€å‡ºä¿¡å·ï¼Œåˆ™é€€å‡ºçº¿ç¨‹
 		if (WaitForSingleObject(m_hReadCloseEvent,500) == WAIT_OBJECT_0)
 		{
 			break;
@@ -436,10 +436,10 @@ BOOL CCESeries::ReadAsynPort(const BYTE*buf , DWORD bufLen,DWORD overtime,DWORD 
 
 
 /*
-*º¯Êı½éÉÜ£ºÉèÖÃ´®¿Ú¶ÁÈ¡¡¢Ğ´Èë³¬Ê±
-*Èë¿Ú²ÎÊı£ºCommTimeOuts : Ö¸ÏòCOMMTIMEOUTS½á¹¹
-*³ö¿Ú²ÎÊı£º(ÎŞ)
-*·µ»ØÖµ£ºTRUE:ÉèÖÃ³É¹¦;FALSE:ÉèÖÃÊ§°Ü
+*å‡½æ•°ä»‹ç»ï¼šè®¾ç½®ä¸²å£è¯»å–ã€å†™å…¥è¶…æ—¶
+*å…¥å£å‚æ•°ï¼šCommTimeOuts : æŒ‡å‘COMMTIMEOUTSç»“æ„
+*å‡ºå£å‚æ•°ï¼š(æ— )
+*è¿”å›å€¼ï¼šTRUE:è®¾ç½®æˆåŠŸ;FALSE:è®¾ç½®å¤±è´¥
 */
 BOOL CCESeries::SetSeriesTimeouts(COMMTIMEOUTS CommTimeOuts)
 {
@@ -448,7 +448,7 @@ BOOL CCESeries::SetSeriesTimeouts(COMMTIMEOUTS CommTimeOuts)
 }
 
 
-//µÃµ½´®¿ÚÊÇ·ñ´ò¿ª
+//å¾—åˆ°ä¸²å£æ˜¯å¦æ‰“å¼€
 BOOL CCESeries::GetComOpened()
 {
 	return m_bOpened;
